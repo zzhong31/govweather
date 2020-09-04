@@ -75,7 +75,7 @@ export default () => {
 
     return (
         <div>
-            <div className="ui container" style={{ paddingTop: "20px" }}>
+            <div className="ui container" style={{ padding: "20px 0px" }}>
                 {unableToDetermineLocation ?
                     <div className="ui segment">
                         <div className="header">
