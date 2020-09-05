@@ -3,7 +3,6 @@ const axios = require('axios');
 const path = require('path');
 const apiKeys = require('./config/config')
 const cors = require('cors');
-const jsonp = require('jsonp');
 
 const app = express();
 app.use(cors());
