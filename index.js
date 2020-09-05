@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
+app.set('trust proxy', true)
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(cors());
@@ -13,14 +14,16 @@ const ipKey = process.env.IPINFO_KEY;
 
 
 app.get('/api/location/', async (req, res) => {
+    
+    let ipRequest = '';
+    if(req.ip != '::ffff:127.0.0.1'){
+        ipRequest = `/${req.ip}`;
+    }
+    
+    
+    const { data } = await axios.get(`https://ipinfo.io${ipRequest}?token=${ipKey}`);
 
-    let result = {};
-    const ipResult = await axios.get("https://api.ipify.org/?format=json");
-    console.log(ipResult.data.ip);
-    const { data } = await axios.get("https://ipinfo.io?token=" + ipKey);
-    result = data;
-
-    res.status(201).send(result);
+    res.status(201).send(data);
 });
 console.log(__dirname + '/client/public/index.html');
 app.get('*', (req, res) => {
