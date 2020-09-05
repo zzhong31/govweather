@@ -61,12 +61,8 @@ export default ({ styleProp, onFormSubmit }) => {
     return (
         <div className="ui segment" style={styleProp}>
             <form className="ui form" onSubmit={submitForm} name="searchForm">
-                <div className="inline fields" style={{ margin: '0px' }}>
-                    <div className="sixteen wide field">
-                        <div className="two wide" style={{ margin: '0px' }}>
 
-                        </div>
-                        <div className="twelve wide" style={{ width: "100%" }}>
+                        
                             <Dropdown
                                 placeholder='Enter Location...'
                                 fluid
@@ -77,9 +73,9 @@ export default ({ styleProp, onFormSubmit }) => {
                                 onChange={onChange}
                                 onSearchChange={ (e) => setSearchTerm(e.target.value)}
                             />
-                        </div>
-                    </div>
-                </div>
+
+
+
             </form>
         </div>
     );

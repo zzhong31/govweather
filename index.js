@@ -1,21 +1,18 @@
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
-//const apiKeys = require('./config/config')
-//const cors = require('cors');
-const aws = require('aws-sdk');
-
-let apiKeys = new aws.S3({
-    ipInfoKey: process.env.IPINFO_KEY
-})
+const apiKeys = require('./config/config')
+const cors = require('cors');
 
 const app = express();
-//app.use(cors());
+app.use(cors());
+
+const ipKey = process.env.IPINFO_KEY || apiKeys.ipInfoKey();
 
 app.get('/api/location/', async (req, res) => {
 
     let result = {};
-    const { data } = await axios.get("https://ipinfo.io?token=" + apiKeys.ipInfoKey);
+    const { data } = await axios.get("https://ipinfo.io?token=" + ipKey);
     result = data;
 
     res.status(201).send(result);

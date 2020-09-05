@@ -9,7 +9,7 @@ import { Item } from 'semantic-ui-react';
 
 const containerStyle = {
     backgroundColor: 'rgba(255,255,255,0.65)',
-    minHeight: '100px'
+    minHeight: '50px'
 }
 
 export default () => {
