@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/zzhong31/simpleweather#readme",
   "dependencies": {
+    "aws-sdk": "^2.747.0",
     "axios": "^0.20.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
