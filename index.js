@@ -1,13 +1,16 @@
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
-const apiKeys = require('./config/config')
 const cors = require('cors');
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, 'client/public')));
 app.use(cors());
 
-const ipKey = process.env.IPINFO_KEY || apiKeys.ipInfoKey();
+
+const ipKey = process.env.IPINFO_KEY;
+
 
 app.get('/api/location/', async (req, res) => {
 
@@ -17,7 +20,7 @@ app.get('/api/location/', async (req, res) => {
 
     res.status(201).send(result);
 });
-
+console.log(__dirname + '/client/public/index.html');
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname + '/client/public/index.html'));
 });
