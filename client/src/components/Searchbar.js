@@ -15,6 +15,7 @@ export default ({ styleProp, onFormSubmit }) => {
 
     const onChange = (e, data) => {
         setSelectedValue(data.value)
+        
         onFormSubmit(data.value);
     }
 
@@ -27,7 +28,9 @@ export default ({ styleProp, onFormSubmit }) => {
 
     const submitForm = (e) => {
         e.preventDefault();
+        
         onFormSubmit(selectedValue);
+        
     }
 
     useEffect(() => {
@@ -88,6 +91,7 @@ export default ({ styleProp, onFormSubmit }) => {
                     onSearchChange={onSearchChange}
                     noResultsMessage={noResultsMessage}
                     loading={loading}
+                    selectOnNavigation={false}
                 />
             </form>
             <div className="ui" style={{marginTop:'10px'}} >
