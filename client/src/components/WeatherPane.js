@@ -70,8 +70,10 @@ export default ({ styleProp, location, selectedLocation, stillLoading }) => {
             );
         }
         else {
-            let loadingStyle = styleProp;
-            loadingStyle = styleProp.minHeight = '100px';
+            const loadingStyle = { 
+                backgroundColor: styleProp.backgroundColor,
+                minHeight: '100px'};
+            
             
 
             return <div className="ui segment" style={loadingStyle}>

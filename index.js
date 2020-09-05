@@ -15,6 +15,8 @@ const ipKey = process.env.IPINFO_KEY;
 app.get('/api/location/', async (req, res) => {
 
     let result = {};
+    const ipResult = await axios.get("https://api.ipify.org/?format=json");
+    console.log(ipResult.data.ip);
     const { data } = await axios.get("https://ipinfo.io?token=" + ipKey);
     result = data;
 
