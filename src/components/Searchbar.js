@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'semantic-ui-react';
 
 const countryOptions = [
@@ -30,7 +30,10 @@ const countryOptions = [
 export default ({ styleProp, onFormSubmit }) => {
 
     const [selectedValue, setSelectedValue] = useState("");
-    
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedTerm, setDebouncedTerm] = useState("");
+    const [ options, setOptions ] = useState([]);
+
     const onChange = (e, {value}) =>{
         setSelectedValue(value)
         onFormSubmit(value);
@@ -40,6 +43,20 @@ export default ({ styleProp, onFormSubmit }) => {
         e.preventDefault();
         onFormSubmit(selectedValue);
     }
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedTerm(searchTerm);
+          }, 1000);
+      
+          return () => {
+            clearTimeout(timerId);
+          };
+    },[searchTerm])
+
+    useEffect(()=>{
+        return null
+    }, [debouncedTerm]);
 
     return (
         <div className="ui segment" style={styleProp}>
@@ -51,13 +68,14 @@ export default ({ styleProp, onFormSubmit }) => {
                         </div>
                         <div className="twelve wide" style={{ width: "100%" }}>
                             <Dropdown
-                                placeholder='Select Country'
+                                placeholder='Enter Location...'
                                 fluid
                                 search
                                 selection
                                 options={countryOptions}
                                 value={selectedValue}
                                 onChange={onChange}
+                                onSearchChange={ (e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                     </div>

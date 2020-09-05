@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import jsonp from 'jsonp';
 import axios from 'axios';
 
-//import Searchbar from './Searchbar';
+import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
-//import useWindowDimensions from './GetWindowSize';
-//import { Item } from 'semantic-ui-react';
+import useWindowDimensions from './GetWindowSize';
+import { Item } from 'semantic-ui-react';
 import { googleAPI, ipInfoAPI } from '../config/config';
 
 
@@ -16,22 +16,22 @@ const containerStyle = {
 
 export default () => {
 
-    //const { width } = useWindowDimensions();
-    //const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
+    const { width } = useWindowDimensions();
+    const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
     const [locationResult, setLocationResult] = useState({});
     //const [selectedLocation, setSelectedLocation] = useState({});
     const [unableToDetermineLocation, setUnableToDetermineLocation] = useState(false);
     //const [loading, setLoading] = useState(true);
 
 
-    /*useEffect(() => {
+    useEffect(() => {
         if (width < 768) {
             setAppLocation({ paddingTop: '2vh' })
         }
         else {
             setAppLocation({ paddingTop: '20vh' })
         }
-    }, [width]);*/
+    }, [width]);
 
     useEffect(() => {
         const getCurrentLocation = async () => {
@@ -68,14 +68,18 @@ export default () => {
         getCurrentLocation();
     }, [])
 
-    /*const onFormSubmit = (location) => {
+    const onFormSubmit = (location) => {
         console.log(`${location} selected`);
-    }*/
-
+    }
 
     return (
         <div>
+            <div className="ui container" style={appLocation}>
+                <h1 className="ui header center aligned">Obama's Forecast</h1>
+                <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
+            </div>
             <div className="ui container" style={{ padding: "20px 0px" }}>
+                
                 {unableToDetermineLocation ?
                     <div className="ui segment">
                         <div className="header">
@@ -94,10 +98,7 @@ export default () => {
     );
 };
 
-/*<div className="ui container" style={appLocation}>
-                <h1 className="ui header center aligned">Obama's Forecast</h1>
-                <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
-            </div>
+/*
             
             selectedLocation={selectedLocation}
             */
