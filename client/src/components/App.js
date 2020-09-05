@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import jsonp from 'jsonp';
 import axios from 'axios';
 
 import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
 import useWindowDimensions from './GetWindowSize';
 import { Item } from 'semantic-ui-react';
-import { googleAPI, ipInfoAPI } from '../config/config';
 
 
 const containerStyle = {
@@ -19,8 +17,8 @@ export default () => {
     const { width } = useWindowDimensions();
     const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
     const [locationResult, setLocationResult] = useState({});
+    const [showDefaultDiv, setShowDefaultDiv] = useState(false);
     //const [selectedLocation, setSelectedLocation] = useState({});
-    const [unableToDetermineLocation, setUnableToDetermineLocation] = useState(false);
     //const [loading, setLoading] = useState(true);
 
 
@@ -36,35 +34,36 @@ export default () => {
     useEffect(() => {
         const getCurrentLocation = async () => {
 
-            jsonp("https://ipinfo.io?token="+ipInfoAPI() , { name: 'callback', timeout: 3000 }, (err, data) => {
-                if (err) {
-                    window.navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            const latlong = `${position.coords.latitude},${position.coords.longitude}`
-                            const reverseLookupResults = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng='+latlong+'&key='+googleAPI())
-                            
-                            const bestResults = reverseLookupResults.data.results[0].address_components;
+            const { data } = await axios.get('/api/location/');
+            setLocationResult(data);
 
-                            const lookupCity = bestResults.filter(result => result.types.includes('locality')&&result.types.includes('political'));
-                            const lookupState = bestResults.filter(result => result.types.includes('administrative_area_level_1')&&result.types.includes('political'));                          
-
-                            setLocationResult({
-                                city: lookupCity[0].long_name,
-                                region: lookupState[0].long_name,
-                                loc: latlong
-                            })
-                        },
-                        (err) => setUnableToDetermineLocation(true)
-                        )
-                } else {
-                    setLocationResult(data);
-                }
-            });
-
-
-
+            setShowDefaultDiv(true);
+            console.log(data);
+            /*if ( initialLocation.loc==="failed"){
+                window.navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const latlong = `${position.coords.latitude},${position.coords.longitude}`
+                        const reverseLookupResults = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng='+latlong+'&key='+apiKeys.googleAPI())
+                        
+                        const bestResults = reverseLookupResults.data.results[0].address_components;
+    
+                        const lookupCity = bestResults.filter(result => result.types.includes('locality')&&result.types.includes('political'));
+                        const lookupState = bestResults.filter(result => result.types.includes('administrative_area_level_1')&&result.types.includes('political'));                          
+    
+                        result = {
+                            city: lookupCity[0].long_name,
+                            region: lookupState[0].long_name,
+                            loc: latlong
+                        }
+                    },
+                    (err) => result = { loc: 'failed'}
+                    )
+            }
+            else{
+                setLocationResult(data);
+            }*/
         }
-
+        //setUnableToDetermineLocation(true)
         getCurrentLocation();
     }, [])
 
@@ -78,27 +77,16 @@ export default () => {
                 <h1 className="ui header center aligned">Obama's Forecast</h1>
                 <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
             </div>
-            <div className="ui container" style={{ padding: "20px 0px" }}>
-                
-                {unableToDetermineLocation ?
-                    <div className="ui segment">
-                        <div className="header">
-                            Please Enable Location Services
-                        </div>
-                    </div>
-                    :
+            {showDefaultDiv ?
+                <div className="ui container" style={{ padding: "20px 0px" }}>
                     <WeatherPane
                         styleProp={containerStyle}
                         location={locationResult}
-
                     ></WeatherPane>
-                }
-            </div>
+                </div>
+                :
+                null}
+
         </div>
     );
 };
-
-/*
-            
-            selectedLocation={selectedLocation}
-            */

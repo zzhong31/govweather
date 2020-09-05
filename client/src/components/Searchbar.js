@@ -55,7 +55,7 @@ export default ({ styleProp, onFormSubmit }) => {
     },[searchTerm])
 
     useEffect(()=>{
-        return null
+        
     }, [debouncedTerm]);
 
     return (
