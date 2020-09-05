@@ -4,7 +4,7 @@ import axios from 'axios';
 import WeatherCard from './WeatherCard';
 import DetermineWeatherIcon from './DetermineWeatherIcon'
 
-export default ({ styleProp, location, selectedLocation, stillLoading }) => {
+export default ({ styleProp, location }) => {
 
     const { city, region, loc } = location;
 
@@ -25,6 +25,9 @@ export default ({ styleProp, location, selectedLocation, stillLoading }) => {
 
         if (loc) {
             getLocationData();
+        }
+        else{
+            setForecasts({});
         }
 
     }, [loc]);
@@ -72,10 +75,8 @@ export default ({ styleProp, location, selectedLocation, stillLoading }) => {
         else {
             const loadingStyle = { 
                 backgroundColor: styleProp.backgroundColor,
-                minHeight: '100px'};
+                minHeight: '80px'};
             
-            
-
             return <div className="ui segment" style={loadingStyle}>
                 <div className="ui active inverted dimmer">
                     <div className="ui text loader">Loading</div>

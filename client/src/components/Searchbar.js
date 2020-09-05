@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown } from 'semantic-ui-react';
+import axios from 'axios';
 
-const countryOptions = [
-    { key: 'af', value: 'af', flag: 'af', text: 'Afghanistan' },
-    { key: 'ax', value: 'ax', flag: 'ax', text: 'Aland Islands' },
-    { key: 'al', value: 'al', flag: 'al', text: 'Albania' },
-    { key: 'dz', value: 'dz', flag: 'dz', text: 'Algeria' },
-    { key: 'as', value: 'as', flag: 'as', text: 'American Samoa' },
-    { key: 'ad', value: 'ad', flag: 'ad', text: 'Andorra' },
-    { key: 'ao', value: 'ao', flag: 'ao', text: 'Angola' },
-    { key: 'ai', value: 'ai', flag: 'ai', text: 'Anguilla' },
-    { key: 'ag', value: 'ag', flag: 'ag', text: 'Antigua' },
-    { key: 'ar', value: 'ar', flag: 'ar', text: 'Argentina' },
-    { key: 'am', value: 'am', flag: 'am', text: 'Armenia' },
-    { key: 'aw', value: 'aw', flag: 'aw', text: 'Aruba' },
-    { key: 'au', value: 'au', flag: 'au', text: 'Australia' },
-    { key: 'at', value: 'at', flag: 'at', text: 'Austria' },
-    { key: 'az', value: 'az', flag: 'az', text: 'Azerbaijan' },
-    { key: 'bs', value: 'bs', flag: 'bs', text: 'Bahamas' },
-    { key: 'bh', value: 'bh', flag: 'bh', text: 'Bahrain' },
-    { key: 'bd', value: 'bd', flag: 'bd', text: 'Bangladesh' },
-    { key: 'bb', value: 'bb', flag: 'bb', text: 'Barbados' },
-    { key: 'by', value: 'by', flag: 'by', text: 'Belarus' },
-    { key: 'be', value: 'be', flag: 'be', text: 'Belgium' },
-    { key: 'bz', value: 'bz', flag: 'bz', text: 'Belize' },
-    { key: 'bj', value: 'bj', flag: 'bj', text: 'Benin' },
-]
+import googleLogo from '../images/powered_by_google_on_white.png'
 
 export default ({ styleProp, onFormSubmit }) => {
 
     const [selectedValue, setSelectedValue] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedTerm, setDebouncedTerm] = useState("");
-    const [ options, setOptions ] = useState([]);
+    const [options, setOptions] = useState([]);
+    const [noResultsMessage, setNoResultsMessage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const onChange = (e, {value}) =>{
-        setSelectedValue(value)
-        onFormSubmit(value);
+    const onChange = (e, data) => {
+        setSelectedValue(data.value)
+        onFormSubmit(data.value);
+    }
+
+    const onSearchChange = (e) =>{
+        setSearchTerm(e.target.value)
+        if(noResultsMessage){
+            setNoResultsMessage(null);
+        }
     }
 
     const submitForm = (e) => {
@@ -47,50 +33,67 @@ export default ({ styleProp, onFormSubmit }) => {
     useEffect(() => {
         const timerId = setTimeout(() => {
             setDebouncedTerm(searchTerm);
-          }, 1000);
-      
-          return () => {
-            clearTimeout(timerId);
-          };
-    },[searchTerm])
+        }, 750);
 
-    useEffect(()=>{
+        return () => {
+            clearTimeout(timerId);
+        };
+    }, [searchTerm])
+
+    useEffect(() => {
         
+        const executeQuerySearch = async () => {
+            setLoading(true);
+            const { data } = await axios.get(`/api/location/${encodeURIComponent(debouncedTerm)}`);
+            setLoading(false);
+            if (data.predictions.length > 0) {
+                const formattedResults = data.predictions.map((prediction) => {
+                    return {
+                        text: prediction.description,
+                        key: prediction.place_id,
+                        value: prediction.place_id
+                    }
+                })
+                setOptions(formattedResults)
+            }
+            else {
+                setOptions([])
+            }
+            setNoResultsMessage('No Results Found');
+        }
+        if (debouncedTerm) {            
+            
+            executeQuerySearch()
+            
+        }
     }, [debouncedTerm]);
 
+    const searchBarStyle = {
+        backgroundColor: styleProp.backgroundColor,
+        minHeight: styleProp.minHeight,
+        paddingBottom: '3px'
+    }
+
     return (
-        <div className="ui segment" style={styleProp}>
+        <div className="ui segment right aligned" style={searchBarStyle}>
             <form className="ui form" onSubmit={submitForm} name="searchForm">
-
-                        
-                            <Dropdown
-                                placeholder='Enter Location...'
-                                fluid
-                                search
-                                selection
-                                options={countryOptions}
-                                value={selectedValue}
-                                onChange={onChange}
-                                onSearchChange={ (e) => setSearchTerm(e.target.value)}
-                            />
-
-
-
+                <Dropdown
+                    placeholder='Enter Location...'
+                    fluid
+                    search
+                    selection
+                    options={options}
+                    value={selectedValue}
+                    onChange={onChange}
+                    onSearchChange={onSearchChange}
+                    noResultsMessage={noResultsMessage}
+                    loading={loading}
+                />
             </form>
+            <div className="ui" style={{marginTop:'10px'}} >
+                <img className="" src={googleLogo} alt='powered by Google' />
+            </div>
+
         </div>
     );
 };
-
-
-/*                            <button className="ui basic button">
-                                <i style={{ margin: '0px' }} className="search icon"></i>
-                            </button>*/
-
-
-
-/*<input
-                        type="text"
-                        placeholder="Search City or Zipcode..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />*/

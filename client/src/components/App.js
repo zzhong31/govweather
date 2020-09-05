@@ -4,7 +4,6 @@ import axios from 'axios';
 import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
 import useWindowDimensions from './GetWindowSize';
-import { Item } from 'semantic-ui-react';
 
 
 const containerStyle = {
@@ -18,8 +17,6 @@ export default () => {
     const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
     const [locationResult, setLocationResult] = useState({});
     const [showDefaultDiv, setShowDefaultDiv] = useState(false);
-    //const [selectedLocation, setSelectedLocation] = useState({});
-    //const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
@@ -38,37 +35,36 @@ export default () => {
             setLocationResult(data);
 
             setShowDefaultDiv(true);
-            console.log(data);
-            /*if ( initialLocation.loc==="failed"){
-                window.navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const latlong = `${position.coords.latitude},${position.coords.longitude}`
-                        const reverseLookupResults = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng='+latlong+'&key='+apiKeys.googleAPI())
-                        
-                        const bestResults = reverseLookupResults.data.results[0].address_components;
-    
-                        const lookupCity = bestResults.filter(result => result.types.includes('locality')&&result.types.includes('political'));
-                        const lookupState = bestResults.filter(result => result.types.includes('administrative_area_level_1')&&result.types.includes('political'));                          
-    
-                        result = {
-                            city: lookupCity[0].long_name,
-                            region: lookupState[0].long_name,
-                            loc: latlong
-                        }
-                    },
-                    (err) => result = { loc: 'failed'}
-                    )
-            }
-            else{
-                setLocationResult(data);
-            }*/
         }
-        //setUnableToDetermineLocation(true)
         getCurrentLocation();
     }, [])
 
-    const onFormSubmit = (location) => {
-        console.log(`${location} selected`);
+    const onFormSubmit = async (location) => {
+
+        setLocationResult({})
+        const { data } = await axios.get(`/api/place/${location}`);
+        const { address_components, geometry } = data.result;
+        const lookupCity = address_components.filter(result => result.types.includes('locality') && result.types.includes('political'));
+        const lookupState = address_components.filter(result => result.types.includes('administrative_area_level_1') && result.types.includes('political'));
+        const latLong = `${geometry.location.lat},${geometry.location.lng}`
+
+        let cityDisplay = '';
+
+        if (lookupCity.length > 0) {
+            cityDisplay = lookupCity[0].long_name;
+        }
+        else {
+            cityDisplay = address_components[0].long_name;
+        }
+
+        const locationResult = {
+            city: cityDisplay,
+            region: lookupState[0].long_name,
+            loc: latLong
+        }
+
+        setLocationResult(locationResult);
+
     }
 
     return (
