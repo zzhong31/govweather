@@ -42,7 +42,9 @@ export default () => {
     const onFormSubmit = async (location) => {
 
         setLocationResult({})
+        
         const { data } = await axios.get(`/api/place/${location}`);
+        
         const { address_components, geometry } = data.result;
         const lookupCity = address_components.filter(result => result.types.includes('locality') && result.types.includes('political'));
         const lookupState = address_components.filter(result => result.types.includes('administrative_area_level_1') && result.types.includes('political'));

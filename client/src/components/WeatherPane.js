@@ -13,20 +13,28 @@ export default ({ styleProp, location }) => {
     useEffect(() => {
 
         const getLocationData = async () => {
+
             const locationData = await axios.get("https://api.weather.gov/points/" + loc)
             const { data } = locationData;
 
-            const forecastData = await axios.get(data.properties.forecast);
+            if (data.properties.forecast) {
+                const forecastData = await axios.get(data.properties.forecast);
 
-            const forecastResults = forecastData.data.properties.periods;
+                const forecastResults = forecastData.data.properties.periods;
 
-            setForecasts(forecastResults);
+                setForecasts(forecastResults);
+            }
+            else {
+                setForecasts({
+                    noForecastReturned: true
+                })
+            }
         }
 
         if (loc) {
             getLocationData();
         }
-        else{
+        else {
             setForecasts({});
         }
 
@@ -37,46 +45,63 @@ export default ({ styleProp, location }) => {
     const showWeatherPane = () => {
         if (numKeys > 0) {
 
-            const renderedWeatherCards = forecasts.slice(0, 6).map((forecast, index) => {
+            if (forecasts.noForecastReturned) {
+                return <div className="ui segment center aligned">
+                <React.Fragment>
+                    <div className="ui header">
+                        No forecast was returned. This is an issue with certain cities in Alaska.
+                    </div>
+                </React.Fragment>
+            </div>
+            }
+            else {
+                const renderedWeatherCards = forecasts.slice(0, 6).map((forecast, index) => {
 
-                const { name, temperature, shortForecast } = forecast;
+                    const { name, temperature, shortForecast } = forecast;
 
-                const determinedIcon = DetermineWeatherIcon(shortForecast, name);
+                    const determinedIcon = DetermineWeatherIcon(shortForecast, name);
 
-                const formattedShortForecast = shortForecast.replace("Thunderstorms", "T-storms")
+                    const formattedShortForecast = shortForecast.replace("Thunderstorms", "T-storms")
+
+                    return (
+                        <React.Fragment key={index}>
+                            <WeatherCard
+                                displayMessage={name}
+                                temperature={temperature + ' °F'}
+                                shortForecast={formattedShortForecast}
+                                weatherIcon={determinedIcon}
+                            >
+                            </WeatherCard>
+                        </React.Fragment>
+                    );
+                });
+
+                let weatherPaneHeader = '';
+                if (city && region) {
+                    weatherPaneHeader = `${city}, ${region}`
+                }
 
                 return (
-                    <React.Fragment key={index}>
-                        <WeatherCard
-                            displayMessage={name}
-                            temperature={temperature + ' °F'}
-                            shortForecast={formattedShortForecast}
-                            weatherIcon={determinedIcon}
-                        >
-                        </WeatherCard>
-                    </React.Fragment>
+
+                    <div className="ui segment" style={styleProp}>
+                        <React.Fragment>
+                            <div className="ui header">
+                                {weatherPaneHeader}
+                            </div>
+                            <div className="ui six stackable cards">
+                                {renderedWeatherCards}
+                            </div>
+                        </React.Fragment>
+                    </div>
                 );
-            });
-
-            return (
-
-                <div className="ui segment" style={styleProp}>
-                    <React.Fragment>
-                        <div className="ui header">
-                            {`${city}, ${region}`}
-                        </div>
-                        <div className="ui six stackable cards">
-                            {renderedWeatherCards}
-                        </div>
-                    </React.Fragment>
-                </div>
-            );
+            }
         }
         else {
-            const loadingStyle = { 
+            const loadingStyle = {
                 backgroundColor: styleProp.backgroundColor,
-                minHeight: '80px'};
-            
+                minHeight: '80px'
+            };
+
             return <div className="ui segment" style={loadingStyle}>
                 <div className="ui active inverted dimmer">
                     <div className="ui text loader">Loading</div>

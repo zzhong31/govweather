@@ -40,7 +40,7 @@ app.get('/api/place/:query', async (req, res) => {
     console.log('GET: /api/place/:query')      
 
     const { data } = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${req.params.query}&fields=address_components,geometry&key=${googleApiKey}`)
-
+    
     res.status(201).send(data);
 });
 
