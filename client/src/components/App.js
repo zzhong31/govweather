@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Segment } from 'semantic-ui-react';
 
 import CurrentWeatherPane from './CurrentWeatherPane';
 import Searchbar from './Searchbar';
@@ -154,7 +153,8 @@ export default () => {
              style={{position: 'absolute',
              bottom: 0,
              width: '100%',
-             height: '35px'}}>
+             height: '35px',
+             paddingTop: '7px'}}>
                     <div className="ui center aligned container">
                         <div class="ui horizontal inverted small divided link list">
                             <a class="item" href="http://www.github.com/zzhong31">Zhenyu Zhong | 2020</a>
