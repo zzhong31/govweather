@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import CurrentWeatherPane from './CurrentWeatherPane';
 import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
 import useWindowDimensions from './GetWindowSize';
@@ -17,14 +18,16 @@ export default () => {
     const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
     const [locationResult, setLocationResult] = useState({});
     const [showDefaultDiv, setShowDefaultDiv] = useState(false);
-
+    const [forecasts, setForecasts] = useState({});
+    const [locationLabel, setLocationLabel] = useState({});
+    const [numericLocationResult, setNumericLocationResult] = useState({});
 
     useEffect(() => {
         if (width < 768) {
             setAppLocation({ paddingTop: '2vh' })
         }
         else {
-            setAppLocation({ paddingTop: '20vh' })
+            setAppLocation({ paddingTop: '10vh' })
         }
     }, [width]);
 
@@ -32,6 +35,7 @@ export default () => {
         const getCurrentLocation = async () => {
 
             const { data } = await axios.get('/api/location/');
+
             setLocationResult(data);
 
             setShowDefaultDiv(true);
@@ -42,9 +46,9 @@ export default () => {
     const onFormSubmit = async (location) => {
 
         setLocationResult({})
-        
+
         const { data } = await axios.get(`/api/place/${location}`);
-        
+
         const { address_components, geometry } = data.result;
         const lookupCity = address_components.filter(result => result.types.includes('locality') && result.types.includes('political'));
         const lookupState = address_components.filter(result => result.types.includes('administrative_area_level_1') && result.types.includes('political'));
@@ -69,6 +73,46 @@ export default () => {
 
     }
 
+    useEffect(() => {
+        
+        const { city, region, loc } = locationResult;
+
+        const getLocationData = async () => {
+
+            const locationData = await axios.get("https://api.weather.gov/points/" + loc)
+            
+            const { data } = locationData;
+
+            if (data.properties.forecast) {
+                const forecastData = await axios.get(data.properties.forecast);
+                const numericForecastData = await axios.get(data.properties.forecastGridData);
+
+                const forecastResults = forecastData.data.properties.periods;
+
+                setForecasts(forecastResults);
+                setNumericLocationResult(numericForecastData.data.properties)
+
+                setLocationLabel({
+                    city,
+                    region
+                })
+            }
+            else {
+                setForecasts({
+                    noForecastReturned: true
+                })
+            }
+        }
+
+        if (Object.keys(locationResult).length > 0) {
+            getLocationData();
+        }
+        else {
+            setForecasts({});
+        }
+        
+    }, [locationResult]);
+
     return (
         <div>
             <div className="ui container" style={appLocation}>
@@ -76,11 +120,26 @@ export default () => {
                 <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
             </div>
             {showDefaultDiv ?
-                <div className="ui container" style={{ padding: "20px 0px" }}>
-                    <WeatherPane
-                        styleProp={containerStyle}
-                        location={locationResult}
-                    ></WeatherPane>
+                <div>
+                    <div className="ui container" style={{ padding: "20px 0px" }}>
+                        <CurrentWeatherPane
+                            styleProp={containerStyle}
+                            location={locationResult}
+                            forecasts={forecasts}
+                            city={locationLabel.city}
+                            region={locationLabel.region}
+                            currentForecast={numericLocationResult}
+                        ></CurrentWeatherPane>
+                    </div>
+                    <div className="ui container" style={{ paddingBottom: "20px" }}>
+                        <WeatherPane
+                            styleProp={containerStyle}
+                            location={locationResult}
+                            forecasts={forecasts}
+                            city={locationLabel.city}
+                            region={locationLabel.region}
+                        ></WeatherPane>
+                    </div>
                 </div>
                 :
                 null}

@@ -5,7 +5,6 @@ export default ({ displayMessage, temperature, shortForecast, weatherIcon }) => 
 
 
     return (
-
         <div className="ui card">
             <div className="content">
                 <i style={{ fontSize: '42px' }} 

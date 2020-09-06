@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
-const { send } = require('process');
 
 const app = express();
 app.set('trust proxy', true)

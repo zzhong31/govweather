@@ -1,45 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 
 import WeatherCard from './WeatherCard';
 import DetermineWeatherIcon from './DetermineWeatherIcon'
 
-export default ({ styleProp, location }) => {
+export default ({ styleProp, forecasts, city, region }) => {
 
-    const { city, region, loc } = location;
-
-    const [forecasts, setForecasts] = useState({});
-
-    useEffect(() => {
-
-        const getLocationData = async () => {
-
-            const locationData = await axios.get("https://api.weather.gov/points/" + loc)
-            const { data } = locationData;
-
-            if (data.properties.forecast) {
-                const forecastData = await axios.get(data.properties.forecast);
-
-                const forecastResults = forecastData.data.properties.periods;
-
-                setForecasts(forecastResults);
-            }
-            else {
-                setForecasts({
-                    noForecastReturned: true
-                })
-            }
-        }
-
-        if (loc) {
-            getLocationData();
-        }
-        else {
-            setForecasts({});
-        }
-
-    }, [loc]);
-
+  
     const numKeys = Object.keys(forecasts).length;
 
     const showWeatherPane = () => {
@@ -55,7 +21,7 @@ export default ({ styleProp, location }) => {
             </div>
             }
             else {
-                const renderedWeatherCards = forecasts.slice(0, 6).map((forecast, index) => {
+                    const renderedWeatherCards = forecasts.slice(1, 7).map((forecast, index) => {
 
                     const { name, temperature, shortForecast } = forecast;
 
@@ -76,19 +42,11 @@ export default ({ styleProp, location }) => {
                     );
                 });
 
-                let weatherPaneHeader = '';
-                if (city && region) {
-                    weatherPaneHeader = `${city}, ${region}`
-                }
-
                 return (
 
                     <div className="ui segment" style={styleProp}>
                         <React.Fragment>
-                            <div className="ui header">
-                                {weatherPaneHeader}
-                            </div>
-                            <div className="ui six stackable cards">
+                            <div className="ui six stackable cards" style={{paddingTop: '15px'}}>
                                 {renderedWeatherCards}
                             </div>
                         </React.Fragment>
