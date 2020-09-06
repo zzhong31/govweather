@@ -116,7 +116,7 @@ export default () => {
     return (
         <div>
             <div className="ui container" style={appLocation}>
-                <h1 className="ui header center aligned">Obama's Forecast</h1>
+                <h1 className="ui header center aligned">Simply Weather</h1>
                 <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
             </div>
             {showDefaultDiv ?
