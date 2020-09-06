@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Container, Segment } from 'semantic-ui-react';
 
 import CurrentWeatherPane from './CurrentWeatherPane';
 import Searchbar from './Searchbar';
@@ -74,13 +75,13 @@ export default () => {
     }
 
     useEffect(() => {
-        
+
         const { city, region, loc } = locationResult;
 
         const getLocationData = async () => {
 
             const locationData = await axios.get("https://api.weather.gov/points/" + loc)
-            
+
             const { data } = locationData;
 
             if (data.properties.forecast) {
@@ -110,40 +111,58 @@ export default () => {
         else {
             setForecasts({});
         }
-        
+
     }, [locationResult]);
 
     return (
-        <div>
-            <div className="ui container" style={appLocation}>
-                <h1 className="ui header center aligned">Simply Weather</h1>
-                <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
-            </div>
-            {showDefaultDiv ?
-                <div>
-                    <div className="ui container" style={{ padding: "20px 0px" }}>
-                        <CurrentWeatherPane
-                            styleProp={containerStyle}
-                            location={locationResult}
-                            forecasts={forecasts}
-                            city={locationLabel.city}
-                            region={locationLabel.region}
-                            currentForecast={numericLocationResult}
-                        ></CurrentWeatherPane>
-                    </div>
-                    <div className="ui container" style={{ paddingBottom: "20px" }}>
-                        <WeatherPane
-                            styleProp={containerStyle}
-                            location={locationResult}
-                            forecasts={forecasts}
-                            city={locationLabel.city}
-                            region={locationLabel.region}
-                        ></WeatherPane>
-                    </div>
+        <div style={{ position: 'relative', minHeight: '100vh'}}>
+            <div style={{
+                paddingBottom: '35px',
+                minHeight: '100%'
+            }}>
+                <div className="ui container" style={appLocation}>
+                    <h1 className="ui header center aligned">Simply Weather</h1>
+                    <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
                 </div>
-                :
-                null}
+                {showDefaultDiv ?
+                    <div>
+                        <div className="ui container" style={{ padding: "20px 0px" }}>
+                            <CurrentWeatherPane
+                                styleProp={containerStyle}
+                                location={locationResult}
+                                forecasts={forecasts}
+                                city={locationLabel.city}
+                                region={locationLabel.region}
+                                currentForecast={numericLocationResult}
+                            ></CurrentWeatherPane>
+                        </div>
+                        <div className="ui container" style={{ paddingBottom: "20px" }}>
+                            <WeatherPane
+                                styleProp={containerStyle}
+                                location={locationResult}
+                                forecasts={forecasts}
+                                city={locationLabel.city}
+                                region={locationLabel.region}
+                            ></WeatherPane>
+                        </div>
+                    </div>
+                    :
+                    null}
+            </div>
+
+            <div className="ui inverted vertical footer segment"
+             style={{position: 'absolute',
+             bottom: 0,
+             width: '100%',
+             height: '35px'}}>
+                    <div className="ui center aligned container">
+                        <div class="ui horizontal inverted small divided link list">
+                            <a class="item" href="http://www.github.com/zzhong31">Zhenyu Zhong | 2020</a>
+                        </div>
+                    </div>
+            </div>
 
         </div>
+
     );
 };
