@@ -4,7 +4,6 @@ import axios from 'axios';
 import CurrentWeatherPane from './CurrentWeatherPane';
 import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
-import useWindowDimensions from './GetWindowSize';
 
 const containerStyle = {
   backgroundColor: 'rgba(255,255,255,0.65)',
@@ -12,22 +11,12 @@ const containerStyle = {
 };
 
 export default () => {
-  const { width } = useWindowDimensions();
-  const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' });
   const [locationResult, setLocationResult] = useState({});
   const [showDefaultDiv, setShowDefaultDiv] = useState(false);
   const [forecasts, setForecasts] = useState({});
   const [locationLabel, setLocationLabel] = useState({});
   const [numericLocationResult, setNumericLocationResult] = useState({});
   const [showRefreshPrompt, setShowRefreshPrompt] = useState(false);
-
-  useEffect(() => {
-    if (width < 768) {
-      setAppLocation({ paddingTop: '7vh' });
-    } else {
-      setAppLocation({ paddingTop: '10vh' });
-    }
-  }, [width]);
 
   useEffect(() => {
     const getCurrentLocation = async () => {
@@ -141,7 +130,7 @@ export default () => {
           minHeight: '100%'
         }}
       >
-        <div className="ui container" style={appLocation}>
+        <div className="ui container" style={{ paddingTop: '7vh' }}>
           <h1 className="ui header center aligned">Simply Weather</h1>
           <Searchbar
             styleProp={containerStyle}
