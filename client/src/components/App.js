@@ -6,144 +6,150 @@ import Searchbar from './Searchbar';
 import WeatherPane from './WeatherPane';
 import useWindowDimensions from './GetWindowSize';
 
-
 const containerStyle = {
-    backgroundColor: 'rgba(255,255,255,0.65)',
-    minHeight: '50px'
-}
+  backgroundColor: 'rgba(255,255,255,0.65)',
+  minHeight: '50px'
+};
 
 export default () => {
+  const { width } = useWindowDimensions();
+  const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' });
+  const [locationResult, setLocationResult] = useState({});
+  const [showDefaultDiv, setShowDefaultDiv] = useState(false);
+  const [forecasts, setForecasts] = useState({});
+  const [locationLabel, setLocationLabel] = useState({});
+  const [numericLocationResult, setNumericLocationResult] = useState({});
 
-    const { width } = useWindowDimensions();
-    const [appLocation, setAppLocation] = useState({ paddingTop: '30vh' })
-    const [locationResult, setLocationResult] = useState({});
-    const [showDefaultDiv, setShowDefaultDiv] = useState(false);
-    const [forecasts, setForecasts] = useState({});
-    const [locationLabel, setLocationLabel] = useState({});
-    const [numericLocationResult, setNumericLocationResult] = useState({});
+  useEffect(() => {
+    if (width < 768) {
+      setAppLocation({ paddingTop: '2vh' });
+    } else {
+      setAppLocation({ paddingTop: '10vh' });
+    }
+  }, [width]);
 
-    useEffect(() => {
-        if (width < 768) {
-            setAppLocation({ paddingTop: '2vh' })
-        }
-        else {
-            setAppLocation({ paddingTop: '10vh' })
-        }
-    }, [width]);
+  useEffect(() => {
+    const getCurrentLocation = async () => {
+      const { data } = await axios.get('/api/location/');
 
-    useEffect(() => {
-        const getCurrentLocation = async () => {
+      setLocationResult(data);
 
-            const { data } = await axios.get('/api/location/');
+      setShowDefaultDiv(true);
+    };
+    getCurrentLocation();
+  }, []);
 
-            setLocationResult(data);
+  const onFormSubmit = async (location) => {
+    setLocationResult({});
 
-            setShowDefaultDiv(true);
-        }
-        getCurrentLocation();
-    }, [])
+    const { data } = await axios.get(`/api/place/${location}`);
 
-    const onFormSubmit = async (location) => {
+    const { address_components, geometry } = data.result;
+    const lookupCity = address_components.filter(
+      (result) =>
+        result.types.includes('locality') && result.types.includes('political')
+    );
+    const lookupState = address_components.filter(
+      (result) =>
+        result.types.includes('administrative_area_level_1') &&
+        result.types.includes('political')
+    );
+    const latLong = `${geometry.location.lat},${geometry.location.lng}`;
 
-        setLocationResult({})
+    let cityDisplay = '';
 
-        const { data } = await axios.get(`/api/place/${location}`);
-
-        const { address_components, geometry } = data.result;
-        const lookupCity = address_components.filter(result => result.types.includes('locality') && result.types.includes('political'));
-        const lookupState = address_components.filter(result => result.types.includes('administrative_area_level_1') && result.types.includes('political'));
-        const latLong = `${geometry.location.lat},${geometry.location.lng}`
-
-        let cityDisplay = '';
-
-        if (lookupCity.length > 0) {
-            cityDisplay = lookupCity[0].long_name;
-        }
-        else {
-            cityDisplay = address_components[0].long_name;
-        }
-
-        const locationResult = {
-            city: cityDisplay,
-            region: lookupState[0].long_name,
-            loc: latLong
-        }
-
-        setLocationResult(locationResult);
-
+    if (lookupCity.length > 0) {
+      cityDisplay = lookupCity[0].long_name;
+    } else {
+      cityDisplay = address_components[0].long_name;
     }
 
-    useEffect(() => {
-        
-        const { city, region, loc } = locationResult;
+    const locationResult = {
+      city: cityDisplay,
+      region: lookupState[0].long_name,
+      loc: latLong
+    };
 
-        const getLocationData = async () => {
+    setLocationResult(locationResult);
+  };
 
-            const locationData = await axios.get("https://api.weather.gov/points/" + loc)
-            
-            const { data } = locationData;
+  useEffect(() => {
+    const { city, region, loc } = locationResult;
 
-            if (data.properties.forecast) {
-                const forecastData = await axios.get(data.properties.forecast);
-                const numericForecastData = await axios.get(data.properties.forecastGridData);
+    const getLocationData = async () => {
+      const locationData = await axios.get(
+        'https://api.weather.gov/points/' + loc
+      );
 
-                const forecastResults = forecastData.data.properties.periods;
+      const { data } = locationData;
 
-                setForecasts(forecastResults);
-                setNumericLocationResult(numericForecastData.data.properties)
+      if (data.properties.forecast) {
+        const forecastData = await axios.get(data.properties.forecast);
+        const numericForecastData = await axios.get(
+          data.properties.forecastGridData
+        );
 
-                setLocationLabel({
-                    city,
-                    region
-                })
-            }
-            else {
-                setForecasts({
-                    noForecastReturned: true
-                })
-            }
-        }
+        const forecastResults = forecastData.data.properties.periods;
 
-        if (Object.keys(locationResult).length > 0) {
-            getLocationData();
-        }
-        else {
-            setForecasts({});
-        }
-        
-    }, [locationResult]);
+        setForecasts(forecastResults);
+        setNumericLocationResult(numericForecastData.data.properties);
 
-    return (
-        <div>
-            <div className="ui container" style={appLocation}>
-                <h1 className="ui header center aligned">Simply Weather</h1>
-                <Searchbar styleProp={containerStyle} onFormSubmit={onFormSubmit}></Searchbar>
-            </div>
-            {showDefaultDiv ?
-                <div>
-                    <div className="ui container" style={{ padding: "20px 0px" }}>
-                        <CurrentWeatherPane
-                            styleProp={containerStyle}
-                            location={locationResult}
-                            forecasts={forecasts}
-                            city={locationLabel.city}
-                            region={locationLabel.region}
-                            currentForecast={numericLocationResult}
-                        ></CurrentWeatherPane>
-                    </div>
-                    <div className="ui container" style={{ paddingBottom: "20px" }}>
-                        <WeatherPane
-                            styleProp={containerStyle}
-                            location={locationResult}
-                            forecasts={forecasts}
-                            city={locationLabel.city}
-                            region={locationLabel.region}
-                        ></WeatherPane>
-                    </div>
-                </div>
-                :
-                null}
+        setLocationLabel({
+          city,
+          region
+        });
+      } else {
+        setForecasts({
+          noForecastReturned: true
+        });
+      }
+    };
 
+    if (Object.keys(locationResult).length > 0) {
+      getLocationData();
+    } else {
+      setForecasts({});
+    }
+  }, [locationResult]);
+
+  return (
+    <div>
+      <div className="ui container">
+        <div className="ui inverted menu">
+          <button className="item">Home</button>
         </div>
-    );
+      </div>
+
+      <div className="ui container" style={appLocation}>
+        <h1 className="ui header center aligned">Simply Weather</h1>
+        <Searchbar
+          styleProp={containerStyle}
+          onFormSubmit={onFormSubmit}
+        ></Searchbar>
+      </div>
+      {showDefaultDiv ? (
+        <div>
+          <div className="ui container" style={{ padding: '20px 0px' }}>
+            <CurrentWeatherPane
+              styleProp={containerStyle}
+              location={locationResult}
+              forecasts={forecasts}
+              city={locationLabel.city}
+              region={locationLabel.region}
+              currentForecast={numericLocationResult}
+            ></CurrentWeatherPane>
+          </div>
+          <div className="ui container" style={{ paddingBottom: '20px' }}>
+            <WeatherPane
+              styleProp={containerStyle}
+              location={locationResult}
+              forecasts={forecasts}
+              city={locationLabel.city}
+              region={locationLabel.region}
+            ></WeatherPane>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 };
