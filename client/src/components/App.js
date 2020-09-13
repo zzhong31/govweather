@@ -19,10 +19,11 @@ export default () => {
   const [forecasts, setForecasts] = useState({});
   const [locationLabel, setLocationLabel] = useState({});
   const [numericLocationResult, setNumericLocationResult] = useState({});
+  const [showRefreshPrompt, setShowRefreshPrompt] = useState(false);
 
   useEffect(() => {
     if (width < 768) {
-      setAppLocation({ paddingTop: '2vh' });
+      setAppLocation({ paddingTop: '7vh' });
     } else {
       setAppLocation({ paddingTop: '10vh' });
     }
@@ -33,8 +34,6 @@ export default () => {
       const { data } = await axios.get('/api/location/');
 
       setLocationResult(data);
-
-      setShowDefaultDiv(true);
     };
     getCurrentLocation();
   }, []);
@@ -77,9 +76,15 @@ export default () => {
     const { city, region, loc } = locationResult;
 
     const getLocationData = async () => {
-      const locationData = await axios.get(
-        'https://api.weather.gov/points/' + loc
-      );
+      setShowDefaultDiv(true);
+      let locationData = {};
+      try {
+        locationData = await axios.get('https://api.weather.gov/points/' + loc);
+      } catch (err) {
+        setShowDefaultDiv(false);
+        setShowRefreshPrompt(true);
+        return null;
+      }
 
       const { data } = locationData;
 
@@ -113,43 +118,92 @@ export default () => {
   }, [locationResult]);
 
   return (
-    <div>
-      <div className="ui container">
-        <div className="ui inverted menu">
-          <button className="item">Home</button>
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <div className="ui fixed inverted menu">
+        <div className="ui container">
+          <a className="header item" href="./">
+            Home
+          </a>
         </div>
+      </div>
+      <div
+        className="spacer"
+        style={{
+          width: '100%',
+          height: '5%'
+        }}
+      >
+        &nbsp;
+      </div>
+      <div
+        style={{
+          paddingBottom: '35px',
+          minHeight: '100%'
+        }}
+      >
+        <div className="ui container" style={appLocation}>
+          <h1 className="ui header center aligned">Simply Weather</h1>
+          <Searchbar
+            styleProp={containerStyle}
+            onFormSubmit={onFormSubmit}
+          ></Searchbar>
+        </div>
+        {showDefaultDiv ? (
+          <div>
+            <div className="ui container" style={{ padding: '20px 0px' }}>
+              <CurrentWeatherPane
+                styleProp={containerStyle}
+                location={locationResult}
+                forecasts={forecasts}
+                city={locationLabel.city}
+                region={locationLabel.region}
+                currentForecast={numericLocationResult}
+              ></CurrentWeatherPane>
+            </div>
+            <div className="ui container" style={{ paddingBottom: '20px' }}>
+              <WeatherPane
+                styleProp={containerStyle}
+                location={locationResult}
+                forecasts={forecasts}
+                city={locationLabel.city}
+                region={locationLabel.region}
+              ></WeatherPane>
+            </div>
+          </div>
+        ) : null}
+        {showRefreshPrompt ? (
+          <div>
+            <div className="ui container" style={{ padding: '20px 0px' }}>
+              <div className="ui segment">
+                <div className="ui header">
+                  The Weather.gov failed to return a result. Please refresh the
+                  page, as this is usually because of the dyno starting up from
+                  the web host from idle.
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
-      <div className="ui container" style={appLocation}>
-        <h1 className="ui header center aligned">Simply Weather</h1>
-        <Searchbar
-          styleProp={containerStyle}
-          onFormSubmit={onFormSubmit}
-        ></Searchbar>
-      </div>
-      {showDefaultDiv ? (
-        <div>
-          <div className="ui container" style={{ padding: '20px 0px' }}>
-            <CurrentWeatherPane
-              styleProp={containerStyle}
-              location={locationResult}
-              forecasts={forecasts}
-              city={locationLabel.city}
-              region={locationLabel.region}
-              currentForecast={numericLocationResult}
-            ></CurrentWeatherPane>
-          </div>
-          <div className="ui container" style={{ paddingBottom: '20px' }}>
-            <WeatherPane
-              styleProp={containerStyle}
-              location={locationResult}
-              forecasts={forecasts}
-              city={locationLabel.city}
-              region={locationLabel.region}
-            ></WeatherPane>
+      <div
+        className="ui inverted vertical footer segment"
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          width: '100%',
+          height: '35px',
+          paddingTop: '7px'
+        }}
+      >
+        <div className="ui center aligned container">
+          <div className="ui horizontal inverted small divided link list">
+            <a className="item" href="http://www.github.com/zzhong31">
+              Zhenyu Zhong | 2020
+            </a>
           </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 };
