@@ -8,12 +8,12 @@ export default ({ styleProp, forecasts, city, region, currentForecast }) => {
   const numKeysCurrent = Object.keys(currentForecast).length;
 
   if (numKeys > 0 && numKeysCurrent > 0) {
-    const currentTemp = currentForecast.temperature.values[0].value;
+    const currentTemp = currentForecast.temperature.values[2].value;
 
     //console.log(Math.round(currentTemp*9/5+32));
 
     if (!forecasts.noForecastReturned) {
-      const renderedWeatherCard = forecasts[1];
+      const renderedWeatherCard = forecasts[0];
 
       const { name, shortForecast, detailedForecast } = renderedWeatherCard;
 

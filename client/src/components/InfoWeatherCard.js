@@ -9,36 +9,36 @@ export default ({ currentForecast }) => {
             <div className="content">
               <div className="summary">
                 <span className="right floated">
-                  Humidity: {currentForecast.relativeHumidity.values[1].value}%
+                  Humidity: {currentForecast.relativeHumidity.values[2].value}%
                 </span>
                 <span>
                   Dewpoint:{' '}
-                  {Math.round(currentForecast.dewpoint.values[1].value)} °C
+                  {Math.round(currentForecast.dewpoint.values[2].value)} °C
                 </span>
               </div>
               <div className="summary">
                 <span className="right floated">
                   Wind Direction:{' '}
-                  {currentForecast.windDirection.values[1].value} °
+                  {currentForecast.windDirection.values[2].value} °
                 </span>
                 <span>
                   Wind Speed:{' '}
-                  {Math.round(currentForecast.windSpeed.values[1].value)} km/h
+                  {Math.round(currentForecast.windSpeed.values[2].value)} km/h
                 </span>
               </div>
               <div className="summary">
                 <span className="right floated">
-                  Sky Cover: {currentForecast.skyCover.values[1].value} %
+                  Sky Cover: {currentForecast.skyCover.values[2].value} %
                 </span>
                 <span>
                   Chance of Rain:{' '}
-                  {currentForecast.probabilityOfPrecipitation.values[1].value} %
+                  {currentForecast.probabilityOfPrecipitation.values[2].value} %
                 </span>
               </div>
               <div className="summary">
                 <span>
                   Heat Index:{' '}
-                  {Math.round(currentForecast.heatIndex.values[1].value)} °C
+                  {Math.round(currentForecast.heatIndex.values[2].value)} °C
                 </span>
               </div>
             </div>
