@@ -13,7 +13,7 @@ export default ({ styleProp, forecasts, city, region, currentForecast }) => {
     //console.log(Math.round(currentTemp*9/5+32));
 
     if (!forecasts.noForecastReturned) {
-      const renderedWeatherCard = forecasts[0];
+      const renderedWeatherCard = forecasts[1];
 
       const { name, shortForecast, detailedForecast } = renderedWeatherCard;
 
