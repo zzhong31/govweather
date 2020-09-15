@@ -6,7 +6,7 @@ The primary purpose of this weather app is simplicity. Ideally, one would be abl
 [Demo](https://simplygovweather.herokuapp.com/)
 
 ## Desktop View
-![Desktop](https://lh3.googleusercontent.com/cSLfB9uEjLLurbLqNyHckIWmyElaAIaI0Dg6IZiTttocM5n3F9jsHGIXjAdhZPy0cVY5OY1ezgBBOINXxXUA=w1920-h966)
+![Desktop](https://i.imgur.com/fZW9CfQ.png)
 
 ## Mobile view
-![Mobile](https://lh4.googleusercontent.com/YL0MMnsMhLS1rqElatEe8J91fZSZFu97z7icQ8KMra85OoW1jjFinGXNeGCNMwz8jbpmavLh2quy9AwOQpLo=w1920-h966)
+![Mobile](https://i.imgur.com/jbfk1j0.png)
